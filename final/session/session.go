@@ -3,20 +3,24 @@ package session
 
 import (
 	"database/sql"
+	"final/dialect"
 	"final/log"
+	"final/schema"
 	"strings"
 )
 
 type Session struct {
 	db *sql.DB //使用sql.Open()方法连接数据库成功后返回的指针
 	//用于拼接sql语句和sql语句中占位符的对应值
-	sql     strings.Builder
-	sqlVars []interface{}
+	dialect  dialect.Dialect
+	refTable *schema.Schema
+	sql      strings.Builder
+	sqlVars  []interface{}
 }
 
-func New(db *sql.DB) *Session {
+func New(db *sql.DB, dialect dialect.Dialect) *Session {
 	return &Session{
-		db: db}
+		db: db, dialect: dialect}
 }
 
 func (s *Session) Clear() {
