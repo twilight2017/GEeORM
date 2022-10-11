@@ -12,7 +12,9 @@ import (
 type Session struct {
 	db       *sql.DB //连接数据库后返回的指针
 	dialect  dialect.Dialect
+	tx       *sql.Tx //增加对事务的支持
 	refTable *schema.Schema
+	clause   clause.Clause
 	//拼接sql语句和sql语句中占位符的对应值
 	sql     strings.Builder
 	sqlVars []interface{}
@@ -68,3 +70,13 @@ func (s *Session) QuerRows() (rows *sql.rows, err error) {
 	}
 	return
 }
+
+//CommonDB is a minimal function set for db
+type CommonDB interface {
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryRow(query string, args ...interface{}) *sql.Row
+	Exec(query string, args ...interface{}) (sql.Result, error)
+}
+
+var _ CommonDB = (*sql.DB)(nil)
+var _ CommonDB = (*sql.Tx)(nil)
