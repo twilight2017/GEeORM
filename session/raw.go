@@ -2,20 +2,27 @@
 package session
 
 import (
+	"GReORM/dialect"
+	"GReORM/schema"
 	"database/sql"
 	"log"
 	"strings"
 )
 
 type Session struct {
-	db *sql.DB //连接数据库后返回的指针
+	db       *sql.DB //连接数据库后返回的指针
+	dialect  dialect.Dialect
+	refTable *schema.Schema
 	//拼接sql语句和sql语句中占位符的对应值
 	sql     strings.Builder
 	sqlVars []interface{}
 }
 
-func New(db *sql.DB) *Session {
-	return &Session{db: db}
+func New(db *sql.DB, dialect dialect.Dialect) *Session {
+	return &Session{
+		db:      db,
+		dialect: dialect,
+	}
 }
 
 func (s *Session) Clear() {
