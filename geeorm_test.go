@@ -54,3 +54,19 @@ func transactionCommit(t *testing.T) {
 		t.Fatal("failed to ommit")
 	}
 }
+
+func TestEngine_Migrate(t *testing.T) {
+	engine := OpenDB(t)
+	defer engine.Close()
+	s := engine.NewSession()
+	_, _ := s.RAW("DROP TABLE IF EXISTS User;").Exec()
+	_, _ := s.RAW("CREATE TABLE User(Name text PRIMARY KEY, xxx integer);").Exec()
+	_, _ := s.RAW("INSERT INTO User(`Name`) values (?), (?)", "Tom", "Sam").Exec()
+	engine.Migrate(&User{})
+
+	rows, _ := s.RAW("SELECT * FROM User").QueryRows()
+	columns, _ := rows.Columns()
+	if !reflect.DeepEqual(columns, []string{"Name", "Age"}) {
+		t.Fatal("Failed to migrate table User, got columns", columns)
+	}
+}
